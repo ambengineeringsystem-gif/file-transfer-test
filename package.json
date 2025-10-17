@@ -1,0 +1,20 @@
+{
+  "name": "mega-drive-s3-client",
+  "version": "1.0.0",
+  "description": "Simple server + static client to generate presigned URLs for Mega Drive S3-compatible storage",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "NODE_ENV=development node server.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.500.0",
+    "@aws-sdk/s3-request-presigner": "^3.500.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mime-types": "^2.1.35"
+  }
+}
