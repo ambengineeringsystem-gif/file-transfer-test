@@ -1,7 +1,16 @@
 // This client is the same as the one in public/, but placed at repo root for GitHub Pages upload
 const $ = sel => document.querySelector(sel);
+function sanitizeBackend(raw) {
+  if (!raw) return '';
+  let s = String(raw).trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.slice(1, -1).trim();
+  }
+  if (s.endsWith('/')) s = s.slice(0, -1);
+  return s;
+}
 const paramBackend = new URLSearchParams(location.search).get('backend');
-const BACKEND = paramBackend || window.BACKEND || ((location.protocol === 'http:' || location.protocol === 'https:') ? location.origin : '');
+const BACKEND = sanitizeBackend(paramBackend || window.BACKEND || '');
 
 async function fetchJson(url, opts) {
   const res = await fetch(url, opts);
@@ -11,6 +20,11 @@ async function fetchJson(url, opts) {
 }
 
 async function listItems() {
+  if (!BACKEND) {
+    const tbody = document.querySelector('#itemsTable tbody');
+    tbody.innerHTML = '<tr><td colspan="4">Backend not configured. Add <code>?backend=https://your-backend</code> to the URL or run <code>window.BACKEND = "https://your-backend"</code> in the console.</td></tr>';
+    return;
+  }
   const res = await fetchJson(BACKEND + '/list');
   const tbody = document.querySelector('#itemsTable tbody');
   tbody.innerHTML = '';
@@ -70,11 +84,16 @@ function createFileItem(file) {
 }
 
 async function presignForKey(key, contentType) {
+  if (!BACKEND) return { ok: false, data: 'Backend not configured' };
   const res = await fetchJson(BACKEND + '/presign-upload', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ key, contentType }) });
   return res;
 }
 
 async function handleUploadFiles(files) {
+  if (!BACKEND) {
+    alert('Backend not configured. Add ?backend=https://your-backend to the URL or set window.BACKEND in the console.');
+    return;
+  }
   const prefix = document.getElementById('prefix').value || '';
   const container = document.getElementById('fileList');
   for (let file of files) {
